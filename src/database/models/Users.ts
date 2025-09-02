@@ -1,5 +1,8 @@
-import { Sequelize, Model, DataTypes } from "sequelize";
-
+import { Sequelize, Model, DataTypes } from 'sequelize';
+import { Role } from './Roles';
+import { Profile } from './Profiles';
+// import { Rating } from './ratings';
+// import { Product } from './Products';
 interface UserAttribute {
   id: string;
   name: string;
@@ -12,17 +15,14 @@ interface UserAttribute {
 }
 
 export interface UserCreationAttribute
-  extends Omit<UserAttribute, "id" | "deletedAt" | "createdAt" | "updatedAt"> {
+  extends Omit<UserAttribute, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'> {
   id?: string;
   deletedAt?: null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export class User
-  extends Model<UserAttribute, UserCreationAttribute>
-  implements UserAttribute
-{
+export class User extends Model<UserAttribute, UserCreationAttribute> implements UserAttribute {
   public id!: string;
   public name!: string;
   public email!: string;
@@ -43,11 +43,31 @@ export class User
     };
   }
 
-  static associate(models: any) {
+  static associate(models: {
+    Role: typeof Role;
+    Profile: typeof Profile;
+    // Rating: typeof Rating;
+    // Product: typeof Product;
+  }): void {
     User.belongsTo(models.Role, {
-      foreignKey: "roleId",
-      as: "role",
+      foreignKey: 'roleId',
+      as: 'role',
     });
+
+    User.hasMany(models.Profile, {
+      foreignKey: 'userId',
+      as: 'user',
+    });
+
+    // User.hasMany(models.Product, {
+    //   foreignKey: 'userId',
+    //   as: 'products',
+    // });
+
+    // User.hasMany(Rating, {
+    //   foreignKey: 'postedBy',
+    //   as: 'ratings',
+    // });
   }
 }
 
@@ -75,13 +95,19 @@ export const UserModal = (sequelize: Sequelize) => {
       roleId: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: 'roles',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
       },
     },
     {
       sequelize,
       timestamps: true,
-      modelName: "Users",
-      tableName: "users",
+      modelName: 'Users',
+      tableName: 'users',
     },
   );
   return User;
