@@ -1,5 +1,4 @@
-
-import express, { Request, Response }  from "express";
+import express, { Request, Response } from "express";
 import { config } from "dotenv";
 import { Database } from "./database";
 import redis from "./utils/redis";
@@ -7,14 +6,16 @@ import { routers } from './routes';
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-
-
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger/config";
 
 config();
 const app = express();
 
+// JSON parsing
 app.use(express.json());
 
+// Session & Passport
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",
@@ -34,50 +35,42 @@ passport.use(
       callbackURL: "http://localhost:5000/auth/google/callback",
     },
     (accessToken, refreshToken, profile, done) => {
-      // Include tokens in user object
-      const userData = {
-        profile,
-        accessToken,
-        refreshToken,
-      };
-      return done(null, userData);
+      return done(null, { profile, accessToken, refreshToken });
     }
   )
-)
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
-
-passport.deserializeUser((user: any, done) => {
-  done(null, user);
-});
-
-app.use(routers);
-
-app.get("/", (req: Request, res: Response) => {
-  res.send('<a href="/auth/google">Login with Google</a>');
-});
-
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user: any, done) => done(null, user));
+
+// Routers
+app.use(routers);
+
+// Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Home page
+app.get("/", (req: Request, res: Response) => {
+  res.send(`
+    <h1>Welcome to SokoLink API</h1>
+    <p><a href="/auth/google">Login with Google</a></p>
+    <p>View <a href="/api-docs">API Docs</a></p>
+  `);
+});
+
+// Google OAuth
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req: Request, res: Response) => {
     const user = req.user as any;
-    res.redirect(
-      `/profile?name=${encodeURIComponent(user.profile.displayName)}&accessToken=${user.accessToken}`
-    );
+    res.redirect(`/profile?name=${encodeURIComponent(user.profile.displayName)}&accessToken=${user.accessToken}`);
   }
 );
 
 app.get("/profile", (req: Request, res: Response) => {
-  if (!req.user) {
-    return res.redirect("/");
-  }
+  if (!req.user) return res.redirect("/");
   const user = req.user as any;
   res.send(`
     <h1>Welcome ${user.profile.displayName}</h1>
@@ -92,30 +85,24 @@ app.get("/logout", (req: Request, res: Response) => {
     res.redirect("/");
   });
 });
+
+// Redis
 redis.connect().catch(console.error);
 
+// Health check
+app.get("/health", (req, res) => res.send("API is running"));
+
+// Start server
 const port = parseInt(process.env.PORT as string) || 5000;
-redis.connect().catch(console.error);
 
-app.get('/',(req, res) => {
-  res.send('Hello world')
-  });
-
-  
 Database.database
   .authenticate()
-  .then(async () => {
-    app.listen(port,()=>{
-    console.log("server started seccessfully")
-
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server started on port ${port}`);
+      console.log(`Swagger docs: http://localhost:${port}/api-docs`);
+    });
   })
-
-  })
- 
+  .catch((err) => console.error("Database connection error:", err));
 
 export { app };
-
-
-
-
-
