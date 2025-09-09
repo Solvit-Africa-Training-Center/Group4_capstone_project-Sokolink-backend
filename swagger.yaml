@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+    title: 'SokoLink API'
+    version: 1.0.0
+    description: 'API documentation for SokoLink project'
+servers:
+    -
+        url: 'http://localhost:5000/api'
+        description: 'Development server'
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+security:
+    -
+        bearerAuth: []
+paths:
+    /api/users:
+        get:
+            summary: 'Get all users'
+            tags:
+                - Users
+            security:
+                -
+                    bearerAuth: []
+            parameters:
+                -
+                    in: header
+                    name: Authorization
+                    required: true
+                    schema:
+                        type: string
+                    description: 'Bearer token'
+            responses:
+                '200':
+                    description: 'List of users retrieved successfully'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UsersListResponse'
+                '401':
+                    description: 'Unauthorized - invalid or missing token'
+                '409':
+                    description: 'No users found'
+                '500':
+                    description: 'Internal server error'
+        post:
+            summary: 'Register a new user'
+            tags:
+                - Users
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterRequest'
+            responses:
+                '201':
+                    description: 'User created successfully'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserResponse'
+                '404':
+                    description: 'Default role not found'
+                '409':
+                    description: 'User already exists'
+                '500':
+                    description: 'Internal server error'
+    /api/login:
+        post:
+            summary: 'Login user'
+            tags:
+                - Users
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+            responses:
+                '200':
+                    description: 'Login successful'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginResponse'
+                '401':
+                    description: 'Invalid email or password'
+                '404':
+                    description: 'User not found'
+                '500':
+                    description: 'Internal server error'
+    /api/logout:
+        post:
+            summary: 'Logout user'
+            tags:
+                - Users
+            security:
+                -
+                    bearerAuth: []
+            parameters:
+                -
+                    in: header
+                    name: Authorization
+                    required: true
+                    schema:
+                        type: string
+                    description: 'Bearer token'
+            responses:
+                '200':
+                    description: 'Logout successful'
+                '401':
+                    description: 'Unauthorized - invalid or missing token'
+                '500':
+                    description: 'Internal server error'
+tags:
+    -
+        name: Users
+        description: 'User management endpoints'

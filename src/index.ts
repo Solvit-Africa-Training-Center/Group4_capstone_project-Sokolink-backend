@@ -1,4 +1,4 @@
-
+import { setupSwagger } from "./config/swagger";
 import express, { Request, Response }  from "express";
 import { config } from "dotenv";
 import { Database } from "./database";
@@ -10,6 +10,9 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "./database/models/Users";
 import { Role } from "./database/models/Roles";
 import jwt from "jsonwebtoken";
+import { swaggerSpec } from "./swagger/config";
+import { swaggerRouter } from "./routes/swaggerRoutes";
+import swaggerUi from 'swagger-ui-express';
 
 
 
@@ -17,6 +20,10 @@ config();
 const app = express();
 
 app.use(express.json());
+app.use(swaggerRouter);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+setupSwagger(app);
 
 app.use(
   session({
@@ -91,12 +98,13 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.get(
-  "/api/auth/google",
+  "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get(
-  "/api/auth/google/callback",
+  "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   async (req: Request, res: Response) => {
     const user = req.user as any;
@@ -134,7 +142,6 @@ app.get("/logout", (req: Request, res: Response) => {
     res.redirect("/");
   });
 });
-redis.connect().catch(console.error);
 
 const port = parseInt(process.env.PORT as string) || 5000;
 redis.connect().catch(console.error);
