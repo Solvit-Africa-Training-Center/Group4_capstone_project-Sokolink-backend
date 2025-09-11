@@ -1,0 +1,15 @@
+/auth/google:
+  get:
+    tags:
+      - Authentication
+    summary: Redirect to Google for authentication
+    description: Redirects the user to Google login page to start OAuth flow
+    responses:
+      '302':
+        description: Redirect to Google login
+      '500':
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'

@@ -9,6 +9,8 @@ interface UserAttribute {
   email: string;
   password: string;
   roleId: string;
+  businessName?: string; 
+  phoneNumber?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: null;
@@ -28,6 +30,8 @@ export class User extends Model<UserAttribute, UserCreationAttribute> implements
   public email!: string;
   public password!: string;
   public roleId!: string;
+  public businessName!: string; 
+  public phoneNumber!: string;
   public updatedAt!: Date;
   public deletedAt: null = null;
   public createdAt: Date = new Date();
@@ -38,6 +42,8 @@ export class User extends Model<UserAttribute, UserCreationAttribute> implements
       name: this.name,
       email: this.email,
       roleId: this.roleId,
+      businessName: this.businessName,
+      phoneNumber: this.phoneNumber, 
       updatedAt: this.updatedAt,
       createdAt: this.createdAt,
     };
@@ -102,6 +108,8 @@ export const UserModal = (sequelize: Sequelize) => {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
+      businessName: { type: DataTypes.STRING, allowNull: false },  
+    phoneNumber: { type: DataTypes.STRING, allowNull: false },
     },
     {
       sequelize,

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ValidationMiddleware } from '../middlewares/validationMiddleware';
-import { getAllUsers, createUser, loginUser, logoutUser } from '../controllers/userController';
+import { getAllUsers, registerUser, loginUser, logoutUser } from '../controllers/userController';
 import { AddUserSchema, LoginUserSchema } from '../schema/userSchema';
 import { authMiddleware, checkRole, rateLimiting } from '../middlewares/authMiddleware';
 
@@ -12,7 +12,7 @@ userRouter.post(
   '/users',
   rateLimiting(30),
   ValidationMiddleware({ type: 'body', schema: AddUserSchema }),
-  createUser,
+  registerUser,
 );
 
 userRouter.post(
