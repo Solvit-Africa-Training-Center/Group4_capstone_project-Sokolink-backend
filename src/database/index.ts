@@ -27,10 +27,10 @@ const sequelizeInstance = dbConnection();
 sequelizeInstance
   .authenticate()
   .then(() => {
-    console.log('✅ Database connected successfully');
+    console.log('Database connected successfully');
   })
   .catch((err) => {
-    console.error('❌ Database connection error:', err);
+    console.error('Database connection error:', err);
   });
 
 const models = AllModal(sequelizeInstance);
