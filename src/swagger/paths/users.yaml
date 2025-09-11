@@ -50,7 +50,7 @@
     tags:
       - Users
     summary: Create new user
-    description: Register a new user account
+    description: Register a new user account (with role, businessName, phoneNumber)
     requestBody:
       required: true
       content:

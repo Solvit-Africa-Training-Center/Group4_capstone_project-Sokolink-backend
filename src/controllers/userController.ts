@@ -40,17 +40,29 @@ export const getAllUsers = async (req: IRequestUserData, res: Response) => {
   }
 };
 
-export const createUser = async (req: IRequestUserData, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
 
-    const role = await Database.Role.findOne({ where: { name: 'Retailer' } });
+// Generic register user with dynamic role, businessName, and phoneNumber
+export const registerUser = async (req: IRequestUserData, res: Response) => {
+  try {
+    const { name, email, password, roleName, businessName, phoneNumber } = req.body;
+
+    if (!roleName) {
+      return ResponseService({
+        data: null,
+        status: 400,
+        success: false,
+        message: 'roleName is required',
+        res,
+      });
+    }
+
+    const role = await Database.Role.findOne({ where: { name: roleName } });
     if (!role) {
       return ResponseService({
         data: null,
         status: 404,
         success: false,
-        message: 'Default role "customer" not found',
+        message: `Role "${roleName}" not found`,
         res,
       });
     }
@@ -71,13 +83,15 @@ export const createUser = async (req: IRequestUserData, res: Response) => {
       email,
       password: await hashPassword(password),
       roleId: role.id,
+      businessName,
+      phoneNumber,
     });
 
     await user.save();
 
     ResponseService({
       data: user,
-      message: 'User created successfully',
+      message: `${roleName} account created successfully`,
       success: true,
       status: 201,
       res,

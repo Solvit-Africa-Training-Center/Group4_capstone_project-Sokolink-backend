@@ -1,128 +1,14 @@
 import { Sequelize, Model, DataTypes } from 'sequelize';
 import { Role } from './Roles';
 import { Profile } from './Profiles';
-// // import { Rating } from './ratings';
-// // import { Product } from './Products';
-
-
-
-// /**
-//  * @swagger
-//  * components:
-//  *   schemas:
-//  *     User:
-//  *       type: object
-//  *       required:
-//  *         - name
-//  *         - email
-//  *         - password
-//  *         - roleId
-//  *       properties:
-//  *         id:
-//  *           type: string
-//  *           format: uuid
-//  *           description: Auto-generated UUID
-//  *         name:
-//  *           type: string
-//  *           description: User's full name
-//  *         email:
-//  *           type: string
-//  *           format: email
-//  *           description: User's email address
-//  *         password:
-//  *           type: string
-//  *           format: password
-//  *           description: Hashed password
-//  *         roleId:
-//  *           type: string
-//  *           format: uuid
-//  *           description: Reference to role ID
-//  *         createdAt:
-//  *           type: string
-//  *           format: date-time
-//  *         updatedAt:
-//  *           type: string
-//  *           format: date-time
-//  * 
-//  *     LoginRequest:
-//  *       type: object
-//  *       required:
-//  *         - email
-//  *         - password
-//  *       properties:
-//  *         email:
-//  *           type: string
-//  *           format: email
-//  *         password:
-//  *           type: string
-//  *           format: password
-//  * 
-//  *     LoginResponse:
-//  *       type: object
-//  *       properties:
-//  *         token:
-//  *           type: string
-//  *           description: JWT authentication token
-//  * 
-//  *     RegisterRequest:
-//  *       type: object
-//  *       required:
-//  *         - name
-//  *         - email
-//  *         - password
-//  *       properties:
-//  *         name:
-//  *           type: string
-//  *         email:
-//  *           type: string
-//  *           format: email
-//  *         password:
-//  *           type: string
-//  *           format: password
-//  *           minLength: 8
-//  * 
-//  *     UserResponse:
-//  *       type: object
-//  *       properties:
-//  *         id:
-//  *           type: string
-//  *           format: uuid
-//  *         name:
-//  *           type: string
-//  *         email:
-//  *           type: string
-//  *           format: email
-//  *         roleId:
-//  *           type: string
-//  *           format: uuid
-//  *         createdAt:
-//  *           type: string
-//  *           format: date-time
-//  *         updatedAt:
-//  *           type: string
-//  *           format: date-time
-//  * 
-//  *     UsersListResponse:
-//  *       type: object
-//  *       properties:
-//  *         users:
-//  *           type: array
-//  *           items:
-//  *             $ref: '#/components/schemas/UserResponse'
-//  * 
-//  *   securitySchemes:
-//  *     bearerAuth:
-//  *       type: http
-//  *       scheme: bearer
-//  *       bearerFormat: JWT
-//  */
-
 interface UserAttribute {
   id: string;
   name: string;
   email: string;
   password: string;
   roleId: string;
+  businessName?: string; 
+  phoneNumber?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: null;
@@ -142,6 +28,8 @@ export class User extends Model<UserAttribute, UserCreationAttribute> implements
   public email!: string;
   public password!: string;
   public roleId!: string;
+  public businessName?: string; 
+  public phoneNumber?: string;
   public updatedAt!: Date;
   public deletedAt: null = null;
   public createdAt: Date = new Date();
@@ -152,6 +40,8 @@ export class User extends Model<UserAttribute, UserCreationAttribute> implements
       name: this.name,
       email: this.email,
       roleId: this.roleId,
+      usinessName: this.businessName,
+      phoneNumber: this.phoneNumber,  
       updatedAt: this.updatedAt,
       createdAt: this.createdAt,
     };
@@ -173,15 +63,6 @@ export class User extends Model<UserAttribute, UserCreationAttribute> implements
       as: 'user',
     });
 
-    // User.hasMany(models.Product, {
-    //   foreignKey: 'userId',
-    //   as: 'products',
-    // });
-
-    // User.hasMany(Rating, {
-    //   foreignKey: 'postedBy',
-    //   as: 'ratings',
-    // });
   }
 }
 
@@ -216,6 +97,8 @@ export const UserModal = (sequelize: Sequelize) => {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
+    businessName: { type: DataTypes.STRING, allowNull: false },  
+    phoneNumber: { type: DataTypes.STRING, allowNull: false },
     },
     {
       sequelize,

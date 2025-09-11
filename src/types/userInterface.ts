@@ -2,6 +2,9 @@ export interface UserInterface {
   name: string;
   email: string;
   password: string;
+  roleName?: string;      
+  businessName?: string;  
+  phoneNumber?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: null;

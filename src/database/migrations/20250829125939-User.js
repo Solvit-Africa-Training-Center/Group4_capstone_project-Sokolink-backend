@@ -29,6 +29,15 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+
+       businessName: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  phoneNumber: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
       roleId: {
         type: Sequelize.UUID,
         allowNull: false,

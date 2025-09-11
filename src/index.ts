@@ -21,6 +21,7 @@ const app = express();
 
 app.use(express.json());
 app.use(swaggerRouter);
+app.use("/api",routers);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 setupSwagger(app);
@@ -41,7 +42,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      callbackURL: "http://localhost:5000/auth/google/callback",
+      callbackURL: "http://localhost:5000/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -91,20 +92,19 @@ passport.deserializeUser(async (id: string, done) => {
   }
 });
 
-app.use(routers);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send('<a href="/auth/google">Login with Google</a>');
+  res.send('<a href="/api/auth/google">Login with Google</a>');
 });
 
 app.get(
-  "/auth/google",
+  "/api/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get(
-  "/auth/google/callback",
+  "/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   async (req: Request, res: Response) => {
     const user = req.user as any;
@@ -160,6 +160,8 @@ Database.database
   })
 
   })
+
+
  
 
 export { app };
