@@ -8,6 +8,9 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/config";
+import { User } from "./database/models/Users";
+import { Role } from "./database/models/Roles";
+import jwt from "jsonwebtoken";
 
 config();
 const app = express();
@@ -34,10 +37,63 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       callbackURL: "http://localhost:5000/auth/google/callback",
     },
-    (accessToken, refreshToken, profile, done) => {
-      return done(null, { profile, accessToken, refreshToken });
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails?.[0].value || "";
+        const name = profile.displayName;
+
+        // Check if user exists in DB
+        let user = await User.findOne({ where: { email } });
+
+        if (!user) {
+          // Get default role
+          let defaultRole = await Role.findOne({ where: { name: "User" } });
+
+       if (!defaultRole) {
+       defaultRole = await Role.create({
+       name: "User",
+      description: "Default role for Google login",
+  });
+}
+
+          // Create new user without password
+          user = await User.create({
+            name,
+            email,
+            password:"", // Google login doesn't require password
+            roleId: defaultRole.id,
+          });
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error, undefined);
+      }
     }
   )
+);
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await User.findByPk(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
+
+app.use(routers);
+
+app.get("/", (req: Request, res: Response) => {
+  res.send('<a href="/auth/google">Login with Google</a>');
+});
+
+app.get(
+  "/api/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 passport.serializeUser((user, done) => done(null, user));
@@ -61,11 +117,23 @@ app.get("/", (req: Request, res: Response) => {
 // Google OAuth
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 app.get(
-  "/auth/google/callback",
+  "/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const user = req.user as any;
-    res.redirect(`/profile?name=${encodeURIComponent(user.profile.displayName)}&accessToken=${user.accessToken}`);
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.roleId },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1d" }
+    );
+
+    res.send(`
+      <h1>Welcome ${user.name}</h1>
+      <p>Email: ${user.email}</p>
+      <p>Your JWT Token: ${token}</p>
+    `);
   }
 );
 

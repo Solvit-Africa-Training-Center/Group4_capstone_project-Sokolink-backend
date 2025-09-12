@@ -4,18 +4,18 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('ratings', [
       {
-        Id: '665cb50f-d015-4d73-937f-2be9cc0b096f',  // use UUID strings or generate
+        id: '665cb50f-d015-4d73-937f-2be9cc0b096f',  // use UUID strings or generate
         star: 5,
-        postedBy: 'b2222222-2222-2222-2222-222222222222', // user UUID
-        productId: 'c3333333-3333-3333-3333-333333333333', // product UUID
+        postedBy: 'af4357d9-72a9-45d7-a288-4fcfbb59fc9f', // user UUID
+        productId: '6f258de1-2138-405a-9a4c-ff7ea7cbc3b0', // product UUID
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        Id: '6f258de1-2138-405a-9a4c-ff7ea7cbc3b0',
+        id: '6f258de1-2138-405a-9a4c-ff7ea7cbc3b0',
         star: 3,
-        postedBy: 'e5555555-5555-5555-5555-555555555555',
-        productId: 'f6666666-6666-6666-6666-666666666666',
+        postedBy: 'acc284e1-c124-4c56-80c3-259d18768d0b',
+        productId: 'b795e83e-738a-4fee-a6ae-5887ec4aea83',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
