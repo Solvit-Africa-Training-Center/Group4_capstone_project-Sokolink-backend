@@ -14,7 +14,8 @@
     "db:seed:undo": "sequelize-cli db:seed:undo:all",
     "migration:generate": "sequelize-cli migration:generate --name",
     "seed:generate": "sequelize-cli seed:generate --name",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build": "tsc"
   },
   "dependencies": {
     "abbrev": "^1.1.1",
