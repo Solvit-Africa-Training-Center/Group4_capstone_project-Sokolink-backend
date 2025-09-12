@@ -1,13 +1,12 @@
 import { Router } from 'express';
-import {
-  createProfile,
+import { createProfile,
   getProfile,
   getAllProfiles,
   updateProfile,
   patchProfile,
   deleteProfile,
   updateProfilePicture,
-} from '../controllers/profileController';
+ } from '../controllers/ProfileController';
 import { upload } from '../utils/upload';
 import { ValidationMiddleware } from '../middlewares/validationMiddleware';
 import { authMiddleware, checkRole } from '../middlewares/authMiddleware';
